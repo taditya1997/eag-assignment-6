@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from llm_json import call_json_contract
 from pydantic import Field
 
 from schemas import (
@@ -102,7 +102,9 @@ class FileMemory:
         if self.llm is None:
             return []
         try:
-            response = self.llm.chat(
+            ranked = call_json_contract(
+                self.llm,
+                model_type=MemoryRankingOutput,
                 messages=[
                     {
                         "role": "user",
@@ -114,19 +116,10 @@ class FileMemory:
                 ],
                 system=MEMORY_PROMPT,
                 auto_route="memory",
-                response_format={
-                    "type": "json_schema",
-                    "schema": MemoryRankingOutput.model_json_schema(),
-                    "name": "memory_ranking_output",
-                    "strict": True,
-                },
+                name="memory_ranking_output",
                 max_tokens=1200,
                 temperature=0.1,
             )
-            parsed = response.get("parsed")
-            if parsed is None:
-                parsed = json.loads(response["text"])
-            ranked = MemoryRankingOutput.model_validate(parsed)
         except Exception:
             return []
 

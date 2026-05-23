@@ -1,8 +1,7 @@
 from __future__ import annotations
-
-import json
 from typing import Any
 
+from llm_json import call_json_contract
 from schemas import PerceptionInput, PerceptionOutput
 
 
@@ -28,7 +27,9 @@ class PerceptionLayer:
 
     def run(self, request: PerceptionInput) -> PerceptionOutput:
         payload = request.model_dump_json(indent=2)
-        response = self.llm.chat(
+        return call_json_contract(
+            self.llm,
+            model_type=PerceptionOutput,
             messages=[
                 {
                     "role": "user",
@@ -40,16 +41,7 @@ class PerceptionLayer:
             ],
             system=PERCEPTION_PROMPT,
             auto_route="perception",
-            response_format={
-                "type": "json_schema",
-                "schema": PerceptionOutput.model_json_schema(),
-                "name": "perception_output",
-                "strict": True,
-            },
+            name="perception_output",
             max_tokens=1200,
             temperature=0.2,
         )
-        parsed = response.get("parsed")
-        if parsed is None:
-            parsed = json.loads(response["text"])
-        return PerceptionOutput.model_validate(parsed)

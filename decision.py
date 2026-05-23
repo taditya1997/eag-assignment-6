@@ -1,8 +1,7 @@
 from __future__ import annotations
-
-import json
 from typing import Any
 
+from llm_json import call_json_contract
 from schemas import DecisionInput, DecisionOutput
 
 
@@ -32,7 +31,9 @@ class DecisionLayer:
 
     def run(self, request: DecisionInput) -> DecisionOutput:
         payload = request.model_dump_json(indent=2)
-        response = self.llm.chat(
+        return call_json_contract(
+            self.llm,
+            model_type=DecisionOutput,
             messages=[
                 {
                     "role": "user",
@@ -44,16 +45,7 @@ class DecisionLayer:
             ],
             system=DECISION_PROMPT,
             auto_route="decision",
-            response_format={
-                "type": "json_schema",
-                "schema": DecisionOutput.model_json_schema(),
-                "name": "decision_output",
-                "strict": True,
-            },
+            name="decision_output",
             max_tokens=1800,
             temperature=0.2,
         )
-        parsed = response.get("parsed")
-        if parsed is None:
-            parsed = json.loads(response["text"])
-        return DecisionOutput.model_validate(parsed)
