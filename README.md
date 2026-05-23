@@ -70,6 +70,27 @@ Clean state between attempts:
 ./scripts/clean_state.sh
 ```
 
+## Record The Working Demo
+
+Start the gateway in terminal 1:
+
+```bash
+uv run python llm_gatewayV3/main.py
+```
+
+Run and capture the four-query demo in terminal 2:
+
+```bash
+./scripts/demo_run.sh \
+  "TARGET QUERY A" \
+  "TARGET QUERY B" \
+  "TARGET QUERY C RUN 1" \
+  "TARGET QUERY C RUN 2" \
+  "TARGET QUERY D"
+```
+
+This writes `docs/demo_terminal_output.txt`. Use the same terminal session for the YouTube screen recording.
+
 ## Four Target Queries
 
 The exact four target query texts were not included in the files supplied to this workspace. Once you paste the assignment's four query strings, run:
