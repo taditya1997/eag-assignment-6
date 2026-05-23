@@ -1,0 +1,462 @@
+{
+  "perception": {
+    "prompt": "You are the Perception layer in a four-layer agent.\n\nConvert the user's request and recent observations into a compact typed view of\nthe task. Do not answer the user. Do not call tools. Identify likely tools, any\nfacts the user explicitly wants stored, and the criteria for a correct final\nanswer.\n\nTool names you may mention:\nweb_search, fetch_url, get_time, currency_convert, read_file, list_dir,\ncreate_file, update_file, edit_file, remember, final_answer.\n\nUse facts_to_remember only for durable facts explicitly supplied by the user,\nsuch as \"remember that ...\" or \"my ... is ...\". Preserve the fact accurately.\n",
+    "validation_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "normalized_query": {
+          "title": "Normalized Query",
+          "type": "string"
+        },
+        "user_goal": {
+          "title": "User Goal",
+          "type": "string"
+        },
+        "query_type": {
+          "enum": [
+            "web_research",
+            "time",
+            "currency",
+            "file_task",
+            "memory_store",
+            "memory_recall",
+            "general"
+          ],
+          "title": "Query Type",
+          "type": "string"
+        },
+        "likely_tools": {
+          "items": {
+            "enum": [
+              "web_search",
+              "fetch_url",
+              "get_time",
+              "currency_convert",
+              "read_file",
+              "list_dir",
+              "create_file",
+              "update_file",
+              "edit_file",
+              "remember",
+              "final_answer"
+            ],
+            "type": "string"
+          },
+          "title": "Likely Tools",
+          "type": "array"
+        },
+        "facts_to_remember": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Facts To Remember",
+          "type": "array"
+        },
+        "answer_must_include": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Answer Must Include",
+          "type": "array"
+        },
+        "completion_criteria": {
+          "title": "Completion Criteria",
+          "type": "string"
+        }
+      },
+      "required": [
+        "normalized_query",
+        "user_goal",
+        "query_type",
+        "completion_criteria"
+      ],
+      "title": "PerceptionOutput",
+      "type": "object"
+    }
+  },
+  "decision": {
+    "prompt": "You are the Decision layer in a four-layer agent.\n\nChoose exactly one next action. Return only the typed JSON contract.\n\nRules:\n- Use remember when the user explicitly provided a durable fact to store.\n- Use final_answer when current observations and memory are sufficient.\n- Use get_time for current time/date questions.\n- Use currency_convert for exchange-rate conversions.\n- Use web_search for current or external facts. Use fetch_url after search when\n  snippets are insufficient or the user asks for details from a page.\n- Use read_file/list_dir/create_file/update_file/edit_file for sandbox file\n  tasks. File tools operate inside the MCP server sandbox.\n- Do not repeat an action if its observation already answers the need.\n- When near max_iterations, prefer final_answer with the best supported answer.\n\nFor next_action, fill the matching payload object and leave the others null.\n",
+    "validation_schema": {
+      "$defs": {
+        "CreateFileArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "minLength": 1,
+              "title": "Path",
+              "type": "string"
+            },
+            "content": {
+              "title": "Content",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "title": "CreateFileArgs",
+          "type": "object"
+        },
+        "CurrencyConvertArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "amount": {
+              "title": "Amount",
+              "type": "number"
+            },
+            "from_currency": {
+              "maxLength": 3,
+              "minLength": 3,
+              "title": "From Currency",
+              "type": "string"
+            },
+            "to_currency": {
+              "maxLength": 3,
+              "minLength": 3,
+              "title": "To Currency",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "from_currency",
+            "to_currency"
+          ],
+          "title": "CurrencyConvertArgs",
+          "type": "object"
+        },
+        "EditFileArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "minLength": 1,
+              "title": "Path",
+              "type": "string"
+            },
+            "find": {
+              "minLength": 1,
+              "title": "Find",
+              "type": "string"
+            },
+            "replace": {
+              "title": "Replace",
+              "type": "string"
+            },
+            "replace_all": {
+              "default": false,
+              "title": "Replace All",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "path",
+            "find",
+            "replace"
+          ],
+          "title": "EditFileArgs",
+          "type": "object"
+        },
+        "FetchUrlArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "minLength": 1,
+              "title": "Url",
+              "type": "string"
+            },
+            "timeout": {
+              "default": 20,
+              "maximum": 60,
+              "minimum": 5,
+              "title": "Timeout",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "title": "FetchUrlArgs",
+          "type": "object"
+        },
+        "FinalAnswerArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "answer": {
+              "minLength": 1,
+              "title": "Answer",
+              "type": "string"
+            },
+            "sources": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Sources",
+              "type": "array"
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "title": "FinalAnswerArgs",
+          "type": "object"
+        },
+        "GetTimeArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "timezone": {
+              "default": "UTC",
+              "minLength": 1,
+              "title": "Timezone",
+              "type": "string"
+            }
+          },
+          "title": "GetTimeArgs",
+          "type": "object"
+        },
+        "ListDirArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "default": ".",
+              "title": "Path",
+              "type": "string"
+            }
+          },
+          "title": "ListDirArgs",
+          "type": "object"
+        },
+        "ReadFileArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "minLength": 1,
+              "title": "Path",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "title": "ReadFileArgs",
+          "type": "object"
+        },
+        "RememberArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "fact": {
+              "minLength": 1,
+              "title": "Fact",
+              "type": "string"
+            },
+            "tags": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Tags",
+              "type": "array"
+            }
+          },
+          "required": [
+            "fact"
+          ],
+          "title": "RememberArgs",
+          "type": "object"
+        },
+        "UpdateFileArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "minLength": 1,
+              "title": "Path",
+              "type": "string"
+            },
+            "content": {
+              "title": "Content",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ],
+          "title": "UpdateFileArgs",
+          "type": "object"
+        },
+        "WebSearchArgs": {
+          "additionalProperties": false,
+          "properties": {
+            "query": {
+              "minLength": 1,
+              "title": "Query",
+              "type": "string"
+            },
+            "max_results": {
+              "default": 3,
+              "maximum": 5,
+              "minimum": 1,
+              "title": "Max Results",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "title": "WebSearchArgs",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "next_action": {
+          "enum": [
+            "web_search",
+            "fetch_url",
+            "get_time",
+            "currency_convert",
+            "read_file",
+            "list_dir",
+            "create_file",
+            "update_file",
+            "edit_file",
+            "remember",
+            "final_answer"
+          ],
+          "title": "Next Action",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "web_search": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WebSearchArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "fetch_url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FetchUrlArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "get_time": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GetTimeArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "currency_convert": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CurrencyConvertArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "read_file": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReadFileArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "list_dir": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ListDirArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "create_file": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CreateFileArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "update_file": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UpdateFileArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "edit_file": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EditFileArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "remember": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RememberArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "final_answer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FinalAnswerArgs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "next_action",
+        "rationale"
+      ],
+      "title": "DecisionOutput",
+      "type": "object"
+    }
+  }
+}
