@@ -302,9 +302,10 @@ async def chat(req: ChatRequest):
     all_attempts = []
     last_err = None
 
-    # When explicit provider is requested and the only blocker is cooldown,
-    # wait briefly rather than 503-ing — this is what users intuitively expect.
-    if explicit_override and len(candidates) == 1:
+    # When there is only one usable provider and the only blocker is cooldown,
+    # wait briefly rather than 503-ing. This matters for local/student setups
+    # that often configure exactly one provider key while still using auto_route.
+    if len(candidates) == 1:
         import asyncio as _asyncio
         deadline = time.time() + 30
         while time.time() < deadline:
