@@ -1,9 +1,10 @@
 """
-MCP server for EAGV3 Session 6.
+MCP server for EAGV3 Session 7.
 
-Nine tools, stdio transport:
+Eleven tools, stdio transport:
     web_search, fetch_url, get_time, currency_convert,
-    read_file, list_dir, create_file, update_file, edit_file
+    read_file, list_dir, create_file, update_file, edit_file,
+    index_document, search_knowledge
 
 web_search:  Tavily primary, DuckDuckGo fallback. Hard-capped at 5 results.
 fetch_url:   crawl4ai only — clean markdown via headless Chromium.
@@ -27,16 +28,22 @@ from ddgs import DDGS
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
+from llm_gatewayV3.client import LLM
+from memory import FileMemory
+
 MAX_SEARCH_RESULTS = 5  # hard cap — Tavily prices per result
 
-load_dotenv(Path(__file__).parent / ".env")
+ROOT = Path(__file__).parent
 
-mcp = FastMCP("eagv3-s6-server")
+load_dotenv(ROOT / ".env")
 
-SANDBOX = Path(__file__).parent / "sandbox"
+mcp = FastMCP("eagv3-s7-server")
+
+SANDBOX = ROOT / "sandbox"
 SANDBOX.mkdir(exist_ok=True)
 
-USAGE_PATH = Path(__file__).parent / "usage.json"
+USAGE_PATH = ROOT / "usage.json"
+MEMORY_PATH = ROOT / "state" / "memory.json"
 MONTHLY_CAP = 950  # leave 50/mo headroom on Tavily
 _usage_lock = threading.Lock()
 
@@ -47,6 +54,45 @@ def _safe(path: str) -> Path:
     if p != base and base not in p.parents:
         raise ValueError(f"Path '{path}' escapes the sandbox")
     return p
+
+
+def _memory() -> FileMemory:
+    gateway_url = os.getenv("LLM_GATEWAY_V3_URL", "http://localhost:8101")
+    return FileMemory(MEMORY_PATH, llm=LLM(base_url=gateway_url))
+
+
+def _chunk_words(text: str, chunk_size: int, overlap: int) -> list[str]:
+    if overlap >= chunk_size:
+        raise ValueError("overlap must be smaller than chunk_size")
+    words = text.split()
+    if not words:
+        return []
+    chunks: list[str] = []
+    step = chunk_size - overlap
+    for start in range(0, len(words), step):
+        window = words[start : start + chunk_size]
+        if not window:
+            break
+        chunks.append(" ".join(window))
+        if start + chunk_size >= len(words):
+            break
+    return chunks
+
+
+def _read_indexable_text(path: str) -> tuple[str, str]:
+    if path.startswith("art:"):
+        raise ValueError("Artifact lookup is not available in this checkout")
+    p = _safe(path)
+    if not p.is_file():
+        raise ValueError(f"'{path}' is not a sandbox file")
+    return p.read_text(encoding="utf-8"), f"sandbox:{path}"
+
+
+def _source_from_tags(tags: list[str]) -> str:
+    for tag in tags:
+        if tag.startswith("source:"):
+            return tag.removeprefix("source:")
+    return ""
 
 
 def _empty_usage(month: str) -> dict:
@@ -289,6 +335,75 @@ def edit_file(path: str, find: str, replace: str, replace_all: bool = False) -> 
         "replacements": replacements,
         "size_bytes": p.stat().st_size,
     }
+
+
+@mcp.tool()
+def index_document(path: str, chunk_size: int = 400, overlap: int = 80) -> dict:
+    """Chunk a sandbox file or artifact and write the chunks into Memory as
+    fact records, where they become FAISS-searchable for later queries.
+    Use this when the content must be searchable across later turns or runs.
+    For one-shot inspection of a file's contents, use read_file."""
+    chunk_size = max(50, min(int(chunk_size), 2000))
+    overlap = max(0, min(int(overlap), chunk_size - 1))
+    text, source = _read_indexable_text(path)
+    chunks = _chunk_words(text, chunk_size, overlap)
+    memory = _memory()
+    created = 0
+
+    for idx, chunk in enumerate(chunks, start=1):
+        descriptor = f"[{source} chunk {idx}/{len(chunks)}]\n{chunk}"
+        tags = [
+            "indexed_chunk",
+            "fact",
+            f"source:{source}",
+            f"path:{path.lower()}",
+        ]
+        if suffix := Path(path).suffix.lower().lstrip("."):
+            tags.append(f"type:{suffix}")
+        written = memory.add_fact(
+            descriptor,
+            tags=tags,
+            source_query=f"index_document:{path}",
+        )
+        if written.created:
+            created += 1
+
+    return {
+        "ok": True,
+        "path": path,
+        "source": source,
+        "chunks_indexed": len(chunks),
+        "chunks_created": created,
+        "chunk_size": chunk_size,
+        "overlap": overlap,
+    }
+
+
+@mcp.tool()
+def search_knowledge(query: str, k: int = 5) -> list[dict]:
+    """Vector search over previously indexed fact chunks. Use this rather
+    than re-fetching or re-reading source files when Memory already
+    contains indexed chunks for the topic."""
+    k = max(1, min(int(k), 20))
+    results = _memory().search_facts(
+        query,
+        max_facts=k,
+        required_tags={"indexed_chunk"},
+    )
+    out: list[dict] = []
+    for hit, fact in results:
+        out.append(
+            {
+                "fact_id": fact.id,
+                "relevance": hit.relevance,
+                "reason": hit.reason,
+                "source": _source_from_tags(fact.tags),
+                "tags": fact.tags,
+                "text": fact.fact,
+                "preview": fact.fact[:600],
+            }
+        )
+    return out
 
 
 if __name__ == "__main__":

@@ -8,16 +8,13 @@ from schemas import PerceptionInput, PerceptionOutput
 PERCEPTION_PROMPT = """You are the Perception layer in a four-layer agent.
 
 Convert the user's request and recent observations into a compact typed view of
-the task. Do not answer the user. Do not call tools. Identify likely tools, any
-facts the user explicitly wants stored, and the criteria for a correct final
-answer.
+the task. Do not answer the user. Do not call tools. Describe the user's intent,
+any durable facts the user explicitly wants stored, and the criteria for a
+correct final answer. Keep the view at the intent/capability level and do not
+name concrete external actions.
 
-Tool names you may mention:
-web_search, fetch_url, get_time, currency_convert, read_file, list_dir,
-create_file, update_file, edit_file, remember, final_answer.
-
-Use facts_to_remember only for durable facts explicitly supplied by the user,
-such as "remember that ..." or "my ... is ...". Preserve the fact accurately.
+Use the durable-facts list only for facts explicitly supplied by the user, such
+as personal dates or stable preferences. Preserve the fact accurately.
 """
 
 

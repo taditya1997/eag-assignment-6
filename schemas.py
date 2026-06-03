@@ -16,6 +16,8 @@ ToolName = Literal[
     "create_file",
     "update_file",
     "edit_file",
+    "index_document",
+    "search_knowledge",
     "remember",
     "final_answer",
 ]
@@ -70,6 +72,23 @@ class EditFileArgs(StrictModel):
     replace_all: bool = False
 
 
+class IndexDocumentArgs(StrictModel):
+    path: str = Field(min_length=1)
+    chunk_size: int = Field(default=400, ge=50, le=2000)
+    overlap: int = Field(default=80, ge=0, le=1000)
+
+    @model_validator(mode="after")
+    def _valid_window(self) -> "IndexDocumentArgs":
+        if self.overlap >= self.chunk_size:
+            raise ValueError("overlap must be smaller than chunk_size")
+        return self
+
+
+class SearchKnowledgeArgs(StrictModel):
+    query: str = Field(min_length=1)
+    k: int = Field(default=5, ge=1, le=20)
+
+
 class RememberArgs(StrictModel):
     fact: str = Field(min_length=1)
     tags: list[str] = Field(default_factory=list)
@@ -116,6 +135,14 @@ class EditFileAction(EditFileArgs):
     kind: Literal["edit_file"] = "edit_file"
 
 
+class IndexDocumentAction(IndexDocumentArgs):
+    kind: Literal["index_document"] = "index_document"
+
+
+class SearchKnowledgeAction(SearchKnowledgeArgs):
+    kind: Literal["search_knowledge"] = "search_knowledge"
+
+
 class RememberAction(RememberArgs):
     kind: Literal["remember"] = "remember"
 
@@ -134,6 +161,8 @@ ActionSpec = Annotated[
     | CreateFileAction
     | UpdateFileAction
     | EditFileAction
+    | IndexDocumentAction
+    | SearchKnowledgeAction
     | RememberAction
     | FinalAnswerAction,
     Field(discriminator="kind"),
@@ -175,6 +204,7 @@ class MemoryFact(StrictModel):
     id: str
     fact: str
     tags: list[str] = Field(default_factory=list)
+    embedding: list[float] | None = None
     source_query: str = ""
     created_at: datetime
     updated_at: datetime
@@ -247,6 +277,8 @@ class DecisionOutput(StrictModel):
     create_file: CreateFileArgs | None = None
     update_file: UpdateFileArgs | None = None
     edit_file: EditFileArgs | None = None
+    index_document: IndexDocumentArgs | None = None
+    search_knowledge: SearchKnowledgeArgs | None = None
     remember: RememberArgs | None = None
     final_answer: FinalAnswerArgs | None = None
 
@@ -254,6 +286,12 @@ class DecisionOutput(StrictModel):
     def _matching_payload(self) -> "DecisionOutput":
         payload = getattr(self, self.next_action)
         if payload is None:
+            if self.next_action == "get_time":
+                self.get_time = GetTimeArgs()
+                return self
+            if self.next_action == "list_dir":
+                self.list_dir = ListDirArgs()
+                return self
             raise ValueError(f"{self.next_action} payload is required")
         return self
 
@@ -276,6 +314,10 @@ class DecisionOutput(StrictModel):
             return UpdateFileAction(**self.update_file.model_dump())
         if self.next_action == "edit_file":
             return EditFileAction(**self.edit_file.model_dump())
+        if self.next_action == "index_document":
+            return IndexDocumentAction(**self.index_document.model_dump())
+        if self.next_action == "search_knowledge":
+            return SearchKnowledgeAction(**self.search_knowledge.model_dump())
         if self.next_action == "remember":
             return RememberAction(**self.remember.model_dump())
         return FinalAnswerAction(**self.final_answer.model_dump())

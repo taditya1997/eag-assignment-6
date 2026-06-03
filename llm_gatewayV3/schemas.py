@@ -59,6 +59,23 @@ class ChatRequest(BaseModel):
     auto_route: Optional[Literal["perception", "memory", "decision"]] = None
 
 
+class EmbedRequest(BaseModel):
+    text: str = Field(min_length=1)
+    task_type: Literal["retrieval_document", "retrieval_query"] = "retrieval_document"
+    provider: Optional[Literal["ollama", "gemini"]] = None
+    model: Optional[str] = None
+
+
+class EmbedResponse(BaseModel):
+    embedding: list[float]
+    dimension: int
+    dim: int
+    provider: str
+    model: str
+    latency_ms: int
+    attempted: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class RouterDecision(BaseModel):
     """What the router agent decided. Echoed back on the worker response so the
     agentic-world caller can see which model was picked and why."""

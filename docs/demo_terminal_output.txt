@@ -1,0 +1,109 @@
+Demo captured on: Sun May 24 02:40:17 IST 2026
+Repository: https://github.com/taditya1997/eag-assignment-6
+
+Cleaning state...
+
+===== Query 1 =====
+QUERY: ACTUAL QUERY A
+[1] perception: general -> Address the query "ACTUAL QUERY A".
+[1] decision: final_answer (The query 'ACTUAL QUERY A' is a generic placeholder. Without a specific query, I cannot provide a meaningful answer. Therefore, I will state that the query is too generic.)
+
+FINAL ANSWER:
+The query "ACTUAL QUERY A" is a generic placeholder. Please provide a specific query for me to address.
+ITERATIONS: 1
+
+===== Query 2 =====
+QUERY: ACTUAL QUERY B
+[1] perception: general -> Respond to the query "ACTUAL QUERY B".
+[1] decision: final_answer (The query is "ACTUAL QUERY B". The most direct and complete answer is to simply state the query itself, as no further information or processing is implied or required.)
+
+FINAL ANSWER:
+ACTUAL QUERY B
+ITERATIONS: 1
+
+===== Query 3 =====
+QUERY: ACTUAL QUERY C RUN 1
+[1] perception: general -> Answer the query 'ACTUAL QUERY C RUN 1'.
+[1] decision: web_search (The user's query is a general information request. To answer it, I need to perform a web search to gather relevant information.)
+[1] action ok: {
+  "title": "Running C# online",
+  "url": "https://www.bejson.com/en/runcode/csharp/",
+  "snippet": "Check website header information. Domain Name Server (DNS) query. Online webpage screenshot. WebCheck: Network Inspection.Run C# Online. D is running online."
+}
+{
+  "title": "sql - Query fast, but when in a VIEW, it's slow - due to... - Stack Overflo...",
+  "url": "https://stackoverflow.com/questions/41132960/query-fast-but-when-in-a-view-its-slow-due-to-row-number",
+  "snippet": "I have a query that when run, it's result is instant. However, I paste the exact same query into VIEW, and the results take 6 seconds to reply."
+}
+{
+  "title": "A 47-Second PostgreSQL Query Now Runs in 83ms. Here’s What...",
+  "url": "https://ai.plainenglish.io/a-47-second-postgresql-query-now-runs-in-83ms-heres-what-changed-6f014c35deab",
+  "snippet": "Cost is PostgreSQL’s prediction before running the query. Actual time is the real execution time after the query runs. If both numbers are very different, PostgreSQL’s statistics are outdated. Run ANALYZE table_name; to refresh them."
+}
+[2] perception: web_research -> Obtain information related to 'ACTUAL QUERY C RUN 1'.
+[2] decision: web_search (The previous web search results were too generic and did not provide specific information about 'ACTUAL QUERY C RUN 1'. To address the user's query, a more targeted search for the exact phrase is needed to determine if it refers to a specific project, event, or concept.)
+[2] action ok: {
+  "title": "r/SQL on Reddit: Question: Can You Generate A List of Actual Queries Executed",
+  "url": "https://www.reddit.com/r/SQL/comments/1fp9zrv/question_can_you_generate_a_list_of_actual/",
+  "snippet": "September 25, 2024 - Thank you for any info you can provide! ... If you use the actual query plan (rather than the expected query plan), like EXPLAIN ANALYZE in PostgreSQL, that is the actual \"queries\" executed · Do you mean something like a query history? A log of all queries that have been run on the database?"
+}
+{
+  "title": "Basic query for C and C++ code - CodeQL - GitHub",
+  "url": "https://codeql.github.com/docs/codeql-language-guides/basic-query-for-cpp-code/",
+  "snippet": "For information about installing the CodeQL extension for Visual Studio code, see “Installing CodeQL for Visual Studio Code.” · The query we’re going to run performs a basic search of the code for if statements that are redundant, in the sense that they have an empty then branch."
+}
+{
+  "title": "query run - GitHub Docs",
+  "url": "https://docs.github.com/en/code-security/codeql-cli/codeql-cli-manual/query-run",
+  "snippet": "Run a single query. This command runs single query against a CodeQL database or raw QL dataset."
+}
+[3] perception: web_research -> Understand what 'ACTUAL QUERY C RUN 1' refers to, potentially in the context of programming or database queries.
+[3] decision: final_answer (The web searches provided context for 'actual query' in database systems (contrasting with expected query plans and referring to actual execution time) and 'query C' in the context of CodeQL for C/C++ code. 'RUN 1' likely denotes a specific execution instance. Combining these, I can formulate a comprehensive answer.)
+[3] sources: https://ai.plainenglish.io/a-47-second-postgresql-query-now-runs-in-83ms-heres-what-changed-6f014c35deab, https://stackoverflow.com/questions/41132960/query-fast-but-when-in-a-view-its-slow-due-to-row-number, https://www.reddit.com/r/SQL/comments/1fp9zrv/question_can_you_generate_a_list_of_actual/, https://codeql.github.com/docs/codeql-language-guides/basic-query-for-cpp-code/, https://docs.github.com/en/code-security/codeql-cli/codeql-cli-manual/query-run
+
+FINAL ANSWER:
+The phrase "ACTUAL QUERY C RUN 1" is not a standard technical term, but based on the search results, it likely refers to a specific instance of a query execution, possibly in one of two main contexts:
+
+1.  **Database Context (e.g., SQL, PostgreSQL)**: "Actual Query" often refers to the query that was truly executed by the database system, as opposed to an 'expected query plan' or a theoretical query. When analyzing database performance, tools like `EXPLAIN ANALYZE` in PostgreSQL show the *actual* execution time and resources used by a query after it has run, rather than just a predicted cost. In this context, "C" might be an identifier for a specific query or a category of queries, and "RUN 1" would indicate the first execution or iteration of that particular query.
+
+2.  **Code Analysis Context (e.g., CodeQL for C/C++)**: "Query C" could refer to a query written in a code analysis language (like CodeQL) that is designed to analyze C or C++ source code. CodeQL queries are used to find vulnerabilities, bugs, or specific patterns within codebases. In this scenario, "ACTUAL QUERY C" would be the specific query being run against a C/C++ codebase, and "RUN 1" would signify its first execution.
+
+Without further context, it's most broadly understood as the first execution of a specific query identified as 'C', either in a database environment or a code analysis environment.
+ITERATIONS: 3
+
+===== Query C durable-memory recall run, keeping state =====
+===== Query 4 =====
+QUERY: ACTUAL QUERY C RUN 2
+[1] perception: general -> Understand and process the query 'ACTUAL QUERY C RUN 2'.
+[1] decision: final_answer (The query 'ACTUAL QUERY C RUN 2' is a generic placeholder. There are no specific facts to search for, calculations to perform, or files to interact with. The user's goal is to 'Understand and process the query'. By acknowledging the query in a final answer, I am processing it as requested, even if it doesn't lead to a complex output. This indicates that the query has been received and considered.)
+
+FINAL ANSWER:
+The query 'ACTUAL QUERY C RUN 2' has been received and processed. It appears to be a generic test query without specific instructions for further action.
+ITERATIONS: 1
+
+===== Query 5 =====
+QUERY: ACTUAL QUERY D
+[1] perception: web_research -> Answer the query 'ACTUAL QUERY D'.
+[1] decision: web_search (The user's query 'ACTUAL QUERY D' requires external information. A web search is the most appropriate tool to gather this information.)
+[1] action ok: {
+  "title": "How do you show the actual query plan for a single query in a batch in ...",
+  "url": "https://stackoverflow.com/questions/51544344/how-do-you-show-the-actual-query-plan-for-a-single-query-in-a-batch-in-ssms",
+  "snippet": "26 Jul 2018 · Is there a way to compile the actual query plan for the stored procedure only, ignoring all INSERT statements in the batch?\"Execution Plan Query Cost\" vs \"Time Taken\" - Stack OverflowHow do I obtain a Query Execution Plan in SQL Server? - Stack OverflowMore results from stackoverflow.com"
+}
+{
+  "title": "sys.dm_exec_query_plan_stats (Transact-SQL) - Microsoft Learn",
+  "url": "https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-query-plan-stats-transact-sql?view=azuresqldb-current",
+  "snippet": "18 Nov 2025 · sys.dm_exec_query_plan_stats returns the equivalent of the last known actual execution plan for a previously cached query plan."
+}
+{
+  "title": "Is It Time To Remove Costs From Query Plans In SQL Server?",
+  "url": "https://erikdarling.com/is-it-time-to-remove-costs-from-query-plans/",
+  "snippet": "SQL Server insights from Erik Darling. Want to get better at performance tuning, indexing, or query tuning? Try one of my online SQL courses."
+}
+[2] perception: web_research -> Understand what 'ACTUAL QUERY D' refers to, specifically in the context of database query plans, based on the provided search results.
+[2] decision: final_answer (The search results provide sufficient information to explain what an 'actual query plan' is in the context of SQL Server, which is what 'ACTUAL QUERY D' appears to refer to. The snippets discuss how to obtain actual query plans in SQL Server and their relevance to execution plans.)
+[2] sources: https://stackoverflow.com/questions/51544344/how-do-you-show-the-actual-query-plan-for-a-single-query-in-a-batch-in-ssms, https://learn.microsoft.com/en-us/sql/relational-databases/system-dynamic-management-views/sys-dm_exec_query_plan_stats-transact-sql?view=azuresqldb-current
+
+FINAL ANSWER:
+In the context of database query plans, 'ACTUAL QUERY D' likely refers to an 'actual query plan' or 'actual execution plan' in SQL Server. An actual query plan is a detailed report generated by SQL Server after a query has been executed. It shows the exact steps and operations that the SQL Server query optimizer performed to run the query, including details about how data was accessed, joined, and filtered. This differs from an estimated query plan, which is generated before execution and is based on statistical estimations. Tools like SQL Server Management Studio (SSMS) allow users to view actual query plans, and dynamic management views like `sys.dm_exec_query_plan_stats` can return the last known actual execution plan for a previously cached query.
+ITERATIONS: 2

@@ -13,10 +13,11 @@ ROOT = Path(__file__).parent
 load_dotenv(ROOT.parent / ".env")
 
 import db
+import embedders as E
 import providers as P
 from router import Router, RouterPool, DEFAULT_ROUTER_ORDER, LIMITS, SHORTCUTS, resolve
 from cache import GeminiCache
-from schemas import ChatRequest, ChatResponse, ToolCall, RouterDecision
+from schemas import ChatRequest, ChatResponse, EmbedRequest, EmbedResponse, ToolCall, RouterDecision
 
 DEFAULT_ORDER = ["ollama", "gemini", "nvidia", "groq", "cerebras", "openrouter", "github"]
 ORDER = [x.strip() for x in os.getenv("LLM_ORDER", ",".join(DEFAULT_ORDER)).split(",") if x.strip()]
@@ -184,6 +185,7 @@ async def lifespan(app: FastAPI):
     app.state.router = Router(app.state.providers, ORDER)
     app.state.router_providers = P.build_router_providers()
     app.state.router_pool = RouterPool(app.state.router_providers, ROUTER_ORDER)
+    app.state.embedders, app.state.embed_order = E.build_embedders()
     yield
 
 
@@ -470,6 +472,81 @@ async def chat(req: ChatRequest):
             continue
 
     raise HTTPException(503, f"all providers unavailable. attempts: {all_attempts}. last_error: {last_err}")
+
+
+@app.post("/v1/embed")
+async def embed(req: EmbedRequest):
+    embedders = app.state.embedders
+    if not embedders:
+        raise HTTPException(503, "no embedding providers configured")
+    if len(req.text) > E.MAX_INPUT_CHARS:
+        raise HTTPException(
+            413,
+            f"text is {len(req.text)} chars; embed input is capped at "
+            f"{E.MAX_INPUT_CHARS} chars. Chunk the input and embed each chunk.",
+        )
+
+    started = time.time()
+    try:
+        name, result, attempts, latency = await E.embed_with_failover(
+            embedders,
+            req.text,
+            req.task_type,
+            explicit=req.provider,
+        )
+    except E.EmbedderError as exc:
+        latency = int((time.time() - started) * 1000)
+        db.log_call(
+            provider=req.provider or "(any)",
+            model="(none)",
+            latency_ms=latency,
+            status="error",
+            error=str(exc)[:500],
+            prompt_chars=len(req.text),
+            override=req.provider,
+            call_role="embed",
+        )
+        if req.provider:
+            if exc.status == 429:
+                raise HTTPException(429, f"{req.provider} rate-limited: {exc}")
+            if exc.status == 400:
+                raise HTTPException(400, str(exc))
+            raise HTTPException(502, f"{req.provider} embedding failed: {exc}")
+        raise HTTPException(503, str(exc))
+
+    db.log_call(
+        provider=name,
+        model=result["model"],
+        latency_ms=latency,
+        status="ok",
+        prompt_chars=len(req.text),
+        override=req.provider,
+        attempted=_attempts_str(attempts),
+        call_role="embed",
+        embed_dim=result["dim"],
+    )
+    return EmbedResponse(
+        embedding=result["embedding"],
+        dimension=result["dim"],
+        dim=result["dim"],
+        provider=name,
+        model=result["model"],
+        latency_ms=latency,
+        attempted=attempts,
+    ).model_dump()
+
+
+@app.get("/v1/embedders")
+async def list_embedders():
+    return {
+        "order": app.state.embed_order,
+        "models": {embedder.name: embedder.model for embedder in app.state.embedders},
+        "fixed_dim": E.EMBED_DIM,
+        "max_input_chars": E.MAX_INPUT_CHARS,
+        "backoff_steps_s": E.BACKOFF_STEPS,
+        "live": {embedder.name: embedder.state.snapshot() for embedder in app.state.embedders},
+        "today": db.aggregate(call_role="embed"),
+    }
 
 
 @app.get("/v1/providers")

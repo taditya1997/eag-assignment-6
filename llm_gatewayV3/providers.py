@@ -69,6 +69,69 @@ def _empty_result(model: str) -> dict:
     }
 
 
+def _coerce_embedding(values: Any) -> list[float]:
+    if not isinstance(values, list) or not values:
+        raise ProviderError("embedding response did not contain a vector", status=200)
+    try:
+        return [float(v) for v in values]
+    except Exception as exc:
+        raise ProviderError(f"embedding values were not numeric: {exc}", status=200)
+
+
+async def embed_ollama(
+    text: str,
+    *,
+    model: str,
+    base_url: str = "http://localhost:11434",
+) -> list[float]:
+    async with httpx.AsyncClient(timeout=120) as c:
+        body = {"model": model, "input": text}
+        r = await c.post(f"{base_url.rstrip('/')}/api/embed", json=body)
+        if r.status_code == 200:
+            data = r.json()
+            embeddings = data.get("embeddings")
+            if isinstance(embeddings, list) and embeddings:
+                return _coerce_embedding(embeddings[0])
+
+        legacy_body = {"model": model, "prompt": text}
+        legacy = await c.post(f"{base_url.rstrip('/')}/api/embeddings", json=legacy_body)
+        if legacy.status_code != 200:
+            raise ProviderError(
+                f"ollama embedding HTTP {legacy.status_code}: {legacy.text[:300]}",
+                status=legacy.status_code,
+            )
+        return _coerce_embedding(legacy.json().get("embedding"))
+
+
+async def embed_gemini(
+    text: str,
+    *,
+    api_key: str,
+    model: str,
+    output_dimensionality: int = 768,
+    task_type: str = "retrieval_document",
+    base_url: str = "https://generativelanguage.googleapis.com/v1beta",
+) -> list[float]:
+    gemini_task = task_type.upper()
+    body: dict[str, Any] = {
+        "model": f"models/{model}",
+        "content": {"parts": [{"text": text}]},
+        "taskType": gemini_task,
+        "outputDimensionality": output_dimensionality,
+    }
+    url = f"{base_url.rstrip('/')}/models/{model}:embedContent?key={api_key}"
+    async with httpx.AsyncClient(timeout=120) as c:
+        r = await c.post(url, json=body)
+        if r.status_code != 200:
+            raise ProviderError(
+                f"gemini embedding HTTP {r.status_code}: {r.text[:300]}",
+                status=r.status_code,
+                retryable=(r.status_code not in (400, 401)),
+            )
+        values = (r.json().get("embedding") or {}).get("values")
+        return _coerce_embedding(values)
+
+
 # ────────────────────────────────────────────────────────────────────────────
 # Base
 # ────────────────────────────────────────────────────────────────────────────

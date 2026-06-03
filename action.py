@@ -49,7 +49,10 @@ class ActionLayer:
                     tags=action.tags,
                 )
             )
-            raw_json = written.model_dump_json(indent=2)
+            raw_json = written.model_dump_json(
+                indent=2,
+                exclude={"fact": {"embedding"}},
+            )
             return ActionOutput(
                 iteration=request.iteration,
                 action="remember",

@@ -1,0 +1,116 @@
+Prepared demo sandbox:
+sandbox/corpus/solar_support_field_guide.md
+sandbox/papers/attention.md
+sandbox/papers/chain_of_thought.md
+sandbox/papers/dpo.md
+sandbox/papers/lora.md
+sandbox/papers/react.md
+
+===== Custom index - 50-card corpus =====
+Index the file corpus/solar_support_field_guide.md. Confirm that the coastal solar support field guide is searchable.
+[1] perception: memory_store -> To index the specified file and verify that its content is searchable.
+[1] decision: index_document (The user explicitly asked to index the file 'corpus/solar_support_field_guide.md'. This is the first step towards making its content searchable.)
+[1] action ok: {
+  "ok": true,
+  "path": "corpus/solar_support_field_guide.md",
+  "source": "sandbox:corpus/solar_support_field_guide.md",
+  "chunks_indexed": 4,
+  "chunks_created": 4,
+  "chunk_size": 400,
+  "overlap": 80
+}
+[2] perception: file_task -> Ensure the specified file is indexed and its searchability is confirmed.
+[2] decision: search_knowledge (The file 'corpus/solar_support_field_guide.md' has been indexed. To confirm its searchability, I will perform a search query related to its content, specifically 'coastal solar support field guide'.)
+[2] action ok: {
+  "fact_id": "b138cca96437ccd4",
+  "relevance": 0.7789528965950012,
+  "reason": "vector search cosine similarity 0.779",
+  "source": "sandbox:corpus/solar_support_field_guide.md",
+  "tags": [
+    "fact",
+    "indexed_chunk",
+    "path:corpus/solar_support_field_guide.md",
+    "source:sandbox:corpus/solar_support_field_guide.md",
+    "type:md"
+  ],
+  "text": "[sandbox:corpus/solar_support_field_guide.md chunk 1/4]\n# Coastal Solar Support Field Guide - 50 Incident Cards This corpus contains fifty compact field cards for a retrieval demo about solar panel mounting systems in marine and industrial environments. ## Card 01 - Mist-polished rail Coastal mornings can leave a rail looking clean while a chloride film remains on the underside. Inspect the shaded lip before approving the clamp torque. ## Card 02 - White bloom at clamp foot A pale oxide bloom around a clamp foot means the coating is sacrificing itself. Clean, measure coating loss, and retorque after the surface is dry. ## Card 03 - Hidden washer stack Two washers under one bolt can mask thread engagement. The joint may pass a visual check and still lose preload during wind vibration. ## Card 04 - FRP edge bruise FRP supports can hide impact damage under a glossy edge. Tap testing reveals a dull patch where fibers separated below the surface. ## Card 05 - Galvanized cut end Hot-dip galvanized members need sealed cut ends. A bright saw mark near salty air becomes the first red rust point. ## Card 06 - Dripline shadow Rows below a cable dripline collect concentrated runoff. Staining here often appears before the rest of... [truncated]
+[3] perception: file_task -> Index a specified file and verify its searchability.
+[3] decision: final_answer (The file 'corpus/solar_support_field_guide.md' has been successfully indexed, and a search query for 'coastal solar support field guide' returned relevant content from it, confirming its searchability.)
+
+FINAL ANSWER:
+The file 'corpus/solar_support_field_guide.md' has been successfully indexed. A search for 'coastal solar support field guide' returned relevant information from the indexed document, confirming its searchability.
+ITERATIONS: 3
+
+===== Custom Q1 - Exact standard recall =====
+In the indexed field guide, what warning is given about ASTM B117 salt spray data?
+[1] perception: memory_recall -> Retrieve a specific warning regarding ASTM B117 salt spray data from an indexed field guide.
+[1] decision: final_answer (The memory hits directly provide the warning about ASTM B117 salt spray data from the indexed field guide. Specifically, 'Card 44 - Salt spray test caveat ASTM B117 salt spray data is comparative, not a complete service-life prediction. Use it with field exposure notes.' This information is sufficient to answer the user's query.)
+[1] sources: sandbox:corpus/solar_support_field_guide.md
+
+FINAL ANSWER:
+The indexed field guide gives the warning that "ASTM B117 salt spray data is comparative, not a complete service-life prediction. Use it with field exposure notes."
+ITERATIONS: 1
+
+===== Custom Q2 - Exact coating recall =====
+In the indexed field guide, what does it say about Z275 coating near chloride sources?
+[1] perception: memory_recall -> Retrieve information regarding Z275 coating near chloride sources from the indexed field guide.
+[1] decision: final_answer (The indexed field guide contains a direct answer to the question about Z275 coating near chloride sources. Card 45 explicitly states the limitations and considerations for Z275 coating in such environments.)
+[1] sources: sandbox:corpus/solar_support_field_guide.md
+
+FINAL ANSWER:
+In the indexed field guide, Card 45, titled "Z275 coating limit," states that "Z275 sheet coating is not a universal marine answer. Check cut edges, scratches, and maintenance interval before accepting it near chloride sources."
+ITERATIONS: 1
+
+===== Custom Q3 - Semantic recall: pretty surface, weak joint =====
+Which indexed card explains why a shiny-looking rail can still hide a joint reliability problem after damp seaside mornings?
+[1] perception: memory_recall -> Find the explanation for why a shiny-looking rail can still hide a joint reliability problem after damp seaside mornings from an indexed card.
+[1] decision: final_answer (The memory search results directly answer the user's question about why a shiny-looking rail can still hide a joint reliability problem after damp seaside mornings. Card 01 explains that coastal mornings can leave a rail looking clean while a chloride film remains on the underside.)
+[1] sources: sandbox:corpus/solar_support_field_guide.md
+
+FINAL ANSWER:
+According to Card 01 of the Coastal Solar Support Field Guide, coastal mornings can leave a rail looking clean while a chloride film remains on the underside. This chloride film can hide a joint reliability problem even if the rail appears shiny.
+ITERATIONS: 1
+
+===== Custom Q4 - Semantic recall: work repeats after handoff =====
+Which indexed cards explain why crews repeat old work and miss new problems after maintenance handoffs?
+[1] perception: memory_recall -> Find explanations from indexed cards regarding why crews repeat old work and miss new problems after maintenance handoffs.
+[1] decision: final_answer (The indexed cards provide direct explanations for why crews repeat old work and miss new problems after maintenance handoffs. Card 13 addresses the lack of detailed records during shift handoffs, and Card 33 explains how open work orders for fixed defects lead to repeated inspections and missed new issues.)
+[1] sources: sandbox:corpus/solar_support_field_guide.md
+
+FINAL ANSWER:
+According to the indexed cards:
+
+*   **Card 13 - Shift handoff drift:** Repair quality declines when outgoing crews report work as "tightened" without documenting specific details like the row, tool used, and torque value. This lack of row-level evidence can lead to crews repeating old work or missing new problems.
+*   **Card 33 - Ledger ghost:** When a defect is fixed but the work order remains open, subsequent crews may repeat inspections of the already resolved issue, thereby overlooking new problems. It is crucial to close records with evidence once a defect is fixed.
+ITERATIONS: 1
+
+===== Custom Q5 - Multi-card evidence bundle =====
+Across the indexed field guide, what evidence should a good support defect report include, and why are context photos important?
+[1] perception: memory_recall -> To understand the components of a good support defect report and the significance of context photos, based on information in the indexed field guide.
+[1] decision: final_answer (The memory hits from the `search_knowledge` action contain direct answers to both parts of the user's query regarding the evidence for a good support defect report and the importance of context photos. Therefore, I can now provide a final answer.)
+
+FINAL ANSWER:
+According to the indexed field guide:
+
+A good support defect report should include the following evidence: row ID, weather, close photo, context photo, torque value, coating reading, and the repair decision (Card 50).
+
+Context photos are important because a close-up photo without row context is considered weak evidence. It is crucial to capture the defect, the row marker, and the neighboring module in one set to provide comprehensive evidence (Card 30).
+ITERATIONS: 1
+
+===== No-corpus comparison =====
+[1] perception: memory_recall -> Find the specific warning related to ASTM B117 salt spray data within the indexed field guide.
+[1] decision: search_knowledge (The user is asking a question about information within an 'indexed field guide'. The `perception` indicates this is a memory recall task and suggests using `search_knowledge`. Therefore, I will use `search_knowledge` to query the indexed documents for the specific warning about ASTM B117 salt spray data.)
+[1] action ok: {
+  "meta": null,
+  "content": [],
+  "structuredContent": {
+    "result": []
+  },
+  "isError": false
+}
+[2] perception: web_research -> Identify the warning about ASTM B117 salt spray data from the indexed field guide.
+[2] decision: final_answer (The user asked a question specifically about the 'indexed field guide', and the `search_knowledge` tool returned no results. According to the rules, if `search_knowledge` returns no chunks for a question explicitly asking about indexed knowledge, I should use `final_answer` to state that the indexed corpus has no available matching evidence. I should not switch to `web_search` for this type of question.)
+
+FINAL ANSWER:
+The indexed corpus has no available matching evidence regarding warnings about ASTM B117 salt spray data.
+ITERATIONS: 2
