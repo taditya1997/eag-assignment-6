@@ -25,6 +25,70 @@ under Memory:
 Perception remains tool-blind. Tool-selection guidance lives in Decision and in
 the MCP tool docstrings.
 
+## Session 8 DAG Additions
+
+Session 8 adds a separate DAG orchestrator without rewriting the Session 7
+agent modules. The new path is implemented in:
+
+- `flow.py` - graph planner/executor with concurrent ready-node execution.
+- `agent_config.yaml` - yaml skill catalogue.
+- `skills.py` - generic skill loading and prompt rendering.
+- `persistence.py` - JSON graph and per-node state persistence.
+- `recovery.py` - failure classifier for recovery decisions.
+- `sandbox.py` - subprocess runner for Coder output.
+- `prompts/` - Planner, Critic, Coder, Formatter, and skill prompts.
+
+The demo runner uses deterministic source fixtures for stable screen
+recording. The architecture being demonstrated is still the real DAG: Planner
+emits nodes, Executor runs independent nodes concurrently, Critic gates
+distiller output, recovery splices in a Planner branch, Coder emits Python, and
+SandboxExecutor runs it.
+
+### Session 8 Demo Commands
+
+Run the five base queries:
+
+```bash
+cd "/Users/adityathakur/Desktop/Personal Project/eag-assignment-6"
+./scripts/run_session8_base_queries.sh
+```
+
+Run the extra assignment proofs:
+
+```bash
+./scripts/run_session8_assignment_proofs.sh
+```
+
+Run the recovery classifier and critic-splice tests without needing pytest:
+
+```bash
+.venv/bin/python scripts/run_session8_recovery_tests.py
+```
+
+To regenerate committed logs:
+
+```bash
+./scripts/run_session8_base_queries.sh > docs/session8_base_traces.txt
+./scripts/run_session8_assignment_proofs.sh > docs/session8_assignment_proofs.txt
+.venv/bin/python scripts/run_session8_recovery_tests.py > docs/session8_recovery_tests.txt
+```
+
+### Session 8 Evidence
+
+| Requirement | Evidence |
+| --- | --- |
+| Base queries hello, A, I, J, K | `docs/session8_base_traces.txt` |
+| Parallel fan-out | Base I logs `LAYER WALL: 1.205s`, `BRANCH SUM: 2.807s`, `MAX BRANCH: 1.203s`; custom fan-out logs `LAYER WALL: 1.004s`, `BRANCH SUM: 2.355s`, `MAX BRANCH: 1.002s`. |
+| Critic pass and fail/recovery | `docs/session8_assignment_proofs.txt` shows one pass with `counted 3` and one fail with `counted 2`, skipped formatter, recovery Planner, corrected branch, and final pass. |
+| Coder skill | `prompts/coder.md` is filled in; base I and the coder demo emit Python and run `sandbox_executor`. |
+| New skill | `tabulator` is added in `agent_config.yaml` with `prompts/tabulator.md`; it runs through the generic prompt-only skill path. |
+| Recovery tests | `docs/session8_recovery_tests.txt` and `tests/test_recovery.py`. |
+
+The Session 8 base trace includes the resume proof for K: the first process
+stops after four completed nodes, leaving `coder` and `formatter` pending; the
+second process resumes the same session and completes the pending nodes without
+rerunning the completed researchers.
+
 ## Assignment Demo Runbook
 
 This repo is prepared for the Session 7 RAG assignment demo.
@@ -56,6 +120,13 @@ and vector retrieval still returns the right cards.
 
 The captured terminal logs are committed under `docs/`:
 
+- `docs/session8_base_traces.txt` - complete Session 8 base-query run:
+  hello, A, I, J, and K with resume.
+- `docs/session8_assignment_proofs.txt` - Session 8 custom proof run:
+  custom parallel fan-out, Critic pass, Critic fail with recovery, Coder
+  computation, and the new Tabulator skill.
+- `docs/session8_recovery_tests.txt` - recovery classifier and critic-splice
+  test output.
 - `docs/custom_rag_traces.txt` - complete custom RAG demo:
   - indexes the 50-card field guide;
   - confirms vector search with cosine similarity;

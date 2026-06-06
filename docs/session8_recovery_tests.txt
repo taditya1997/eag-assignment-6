@@ -1,0 +1,42 @@
+SESSION: critic_splice_test
+QUERY: Critic fail: produce exactly three safety checks for coastal solar supports.
+READY LAYER: n001:planner[planner]
+[n001] planner: Produce an intentionally incomplete draft so the Critic forces recovery. (elapsed 0.001s)
+LAYER WALL: 0.003s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n002:distiller[safety_checks]
+[n002] distiller: - Inspect shaded clamp lips for chloride film before approving torque. - Seal galvanized cut ends and document coating readings near salt exposure. (elapsed 0.001s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n004:critic[critic_safety_checks_out]
+[n004] critic: Expected 3 bullet lines and counted 2. (elapsed 0.001s)
+[n003] skipped after critic fail
+RECOVERY: queued n005 after n004
+LAYER WALL: 0.002s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n005:planner[recovery_critic_safety_checks_out]
+[n005] planner: Recover from critic failure by producing a corrected distillation. (elapsed 0.000s)
+LAYER WALL: 0.002s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n006:distiller[recovered_checks]
+[n006] distiller: - Inspect shaded clamp lips for chloride film before approving torque. - Seal galvanized cut ends and document coating readings near salt exposure. - Close handoff records with row (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n008:critic[critic_recovered_checks_out_recovered]
+[n008] critic: Expected 3 bullet lines and counted 3. (elapsed 0.001s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n007:formatter[out_recovered]
+[n007] formatter: The Critic passed the verifiable three-item list: - Inspect shaded clamp lips for chloride film before approving torque. - Seal galvanized cut ends and document coating readings ne (elapsed 0.001s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+
+FINAL ANSWER:
+The Critic passed the verifiable three-item list:
+- Inspect shaded clamp lips for chloride film before approving torque.
+- Seal galvanized cut ends and document coating readings near salt exposure.
+- Close handoff records with row ID, torque value, photos, and repair decision.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.001
+n002 distiller        label=safety_checks                status=complete elapsed=0.001
+n003 formatter        label=out                          status=skipped  elapsed=-
+n004 critic           label=critic_safety_checks_out     status=complete elapsed=0.001
+n005 planner          label=recovery_critic_safety_checks_out status=complete elapsed=0.0
+n006 distiller        label=recovered_checks             status=complete elapsed=0.0
+n007 formatter        label=out_recovered                status=complete elapsed=0.001
+n008 critic           label=critic_recovered_checks_out_recovered status=complete elapsed=0.001
+session8 recovery tests passed

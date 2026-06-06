@@ -1,0 +1,149 @@
+
+===== Custom parallel fan-out =====
+SESSION: s8_parallel_20260606180432
+QUERY: Parallel fan-out demo: compare corrosion risks for aluminum rails, FRP supports, and galvanized brackets.
+READY LAYER: n001:planner[planner]
+[n001] planner: Three independent material checks can run in parallel. (elapsed 0.000s)
+LAYER WALL: 0.002s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n002:researcher[aluminum_rails], n003:researcher[frp_supports], n004:researcher[galvanized_brackets]
+[n004] researcher: Galvanized brackets need sealed cut ends because bright saw marks become early red-rust points in coastal air. (elapsed 0.602s)
+[n003] researcher: FRP supports need tap checks after impact because glossy edges can hide delamination beneath the surface. (elapsed 0.752s)
+[n002] researcher: Aluminum rails near chloride mist need underside inspection because clean top faces can hide salt film at clamp joints. (elapsed 1.002s)
+LAYER WALL: 1.004s | BRANCH SUM: 2.355s | MAX BRANCH: 1.002s
+READY LAYER: n005:formatter[out]
+[n005] formatter: Parallel research results: - aluminum_rails: Aluminum rails near chloride mist need underside inspection because clean top faces can hide salt film at clamp joints. - frp_supports: (elapsed 0.001s)
+LAYER WALL: 0.003s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+
+FINAL ANSWER:
+Parallel research results:
+- aluminum_rails: Aluminum rails near chloride mist need underside inspection because clean top faces can hide salt film at clamp joints.
+- frp_supports: FRP supports need tap checks after impact because glossy edges can hide delamination beneath the surface.
+- galvanized_brackets: Galvanized brackets need sealed cut ends because bright saw marks become early red-rust points in coastal air.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.0
+n002 researcher       label=aluminum_rails               status=complete elapsed=1.002
+n003 researcher       label=frp_supports                 status=complete elapsed=0.752
+n004 researcher       label=galvanized_brackets          status=complete elapsed=0.602
+n005 formatter        label=out                          status=complete elapsed=0.001
+
+===== Critic verdict pass =====
+SESSION: s8_critic_pass_20260606180432
+QUERY: Critic pass: produce exactly three safety checks for coastal solar supports.
+READY LAYER: n001:planner[planner]
+[n001] planner: Produce a verifiable three-bullet result and let the Critic pass it. (elapsed 0.000s)
+LAYER WALL: 0.003s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n002:distiller[safety_checks]
+[n002] distiller: - Inspect shaded clamp lips for chloride film before approving torque. - Seal galvanized cut ends and document coating readings near salt exposure. - Close handoff records with row (elapsed 0.001s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n004:critic[critic_safety_checks_out]
+[n004] critic: Expected 3 bullet lines and counted 3. (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n003:formatter[out]
+[n003] formatter: The Critic passed the verifiable three-item list: - Inspect shaded clamp lips for chloride film before approving torque. - Seal galvanized cut ends and document coating readings ne (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+
+FINAL ANSWER:
+The Critic passed the verifiable three-item list:
+- Inspect shaded clamp lips for chloride film before approving torque.
+- Seal galvanized cut ends and document coating readings near salt exposure.
+- Close handoff records with row ID, torque value, photos, and repair decision.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.0
+n002 distiller        label=safety_checks                status=complete elapsed=0.001
+n003 formatter        label=out                          status=complete elapsed=0.0
+n004 critic           label=critic_safety_checks_out     status=complete elapsed=0.0
+
+===== Critic verdict fail with recovery =====
+SESSION: s8_critic_fail_20260606180432
+QUERY: Critic fail: produce exactly three safety checks for coastal solar supports.
+READY LAYER: n001:planner[planner]
+[n001] planner: Produce an intentionally incomplete draft so the Critic forces recovery. (elapsed 0.000s)
+LAYER WALL: 0.003s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n002:distiller[safety_checks]
+[n002] distiller: - Inspect shaded clamp lips for chloride film before approving torque. - Seal galvanized cut ends and document coating readings near salt exposure. (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n004:critic[critic_safety_checks_out]
+[n004] critic: Expected 3 bullet lines and counted 2. (elapsed 0.000s)
+[n003] skipped after critic fail
+RECOVERY: queued n005 after n004
+LAYER WALL: 0.002s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n005:planner[recovery_critic_safety_checks_out]
+[n005] planner: Recover from critic failure by producing a corrected distillation. (elapsed 0.000s)
+LAYER WALL: 0.002s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n006:distiller[recovered_checks]
+[n006] distiller: - Inspect shaded clamp lips for chloride film before approving torque. - Seal galvanized cut ends and document coating readings near salt exposure. - Close handoff records with row (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n008:critic[critic_recovered_checks_out_recovered]
+[n008] critic: Expected 3 bullet lines and counted 3. (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n007:formatter[out_recovered]
+[n007] formatter: The Critic passed the verifiable three-item list: - Inspect shaded clamp lips for chloride film before approving torque. - Seal galvanized cut ends and document coating readings ne (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+
+FINAL ANSWER:
+The Critic passed the verifiable three-item list:
+- Inspect shaded clamp lips for chloride film before approving torque.
+- Seal galvanized cut ends and document coating readings near salt exposure.
+- Close handoff records with row ID, torque value, photos, and repair decision.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.0
+n002 distiller        label=safety_checks                status=complete elapsed=0.0
+n003 formatter        label=out                          status=skipped  elapsed=-
+n004 critic           label=critic_safety_checks_out     status=complete elapsed=0.0
+n005 planner          label=recovery_critic_safety_checks_out status=complete elapsed=0.0
+n006 distiller        label=recovered_checks             status=complete elapsed=0.0
+n007 formatter        label=out_recovered                status=complete elapsed=0.0
+n008 critic           label=critic_recovered_checks_out_recovered status=complete elapsed=0.0
+
+===== Coder computation demo =====
+SESSION: s8_coder_20260606180432
+QUERY: Coder computation demo: which two project budgets are closest among Alpha 128750, Beta 130500, Gamma 221000, and Delta 129100?
+READY LAYER: n001:planner[planner]
+[n001] planner: The result depends on exact arithmetic, so route through Coder. (elapsed 0.000s)
+LAYER WALL: 0.002s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n002:coder[budget_compare]
+[n002] coder: Alpha and Delta are closest, with a budget difference of 350. (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n003:formatter[out], n004:sandbox_executor[sandbox_executor_budget_compare]
+[n003] formatter: The two closest are Alpha and Delta, with a difference of 350 budget dollars. (elapsed 0.000s)
+[n004] sandbox_executor: exit=0 stdout={'closest_pair': ('Alpha', 'Delta'), 'difference': 350} (elapsed 0.022s)
+LAYER WALL: 0.024s | BRANCH SUM: 0.022s | MAX BRANCH: 0.022s
+
+FINAL ANSWER:
+The two closest are Alpha and Delta, with a difference of 350 budget dollars.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.0
+n002 coder            label=budget_compare               status=complete elapsed=0.0
+n003 formatter        label=out                          status=complete elapsed=0.0
+n004 sandbox_executor label=sandbox_executor_budget_compare status=complete elapsed=0.022
+
+===== New tabulator skill =====
+SESSION: s8_tabulator_20260606180432
+QUERY: Tabulate the Session 8 demo evidence for base, parallel, critic, coder, and new-skill requirements.
+READY LAYER: n001:planner[planner]
+[n001] planner: The new Tabulator skill can format the assignment evidence. (elapsed 0.000s)
+LAYER WALL: 0.002s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n002:tabulator[evidence_table]
+[n002] tabulator: generated evidence table (elapsed 0.001s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n003:formatter[out]
+[n003] formatter: | Requirement | Evidence | | --- | --- | | Base queries | `docs/session8_base_traces.txt` contains hello, A, I, J, and K/resume runs. | | Parallel fan-out | Researcher layer runs t (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+
+FINAL ANSWER:
+| Requirement | Evidence |
+| --- | --- |
+| Base queries | `docs/session8_base_traces.txt` contains hello, A, I, J, and K/resume runs. |
+| Parallel fan-out | Researcher layer runs three independent branches and logs wall time near max branch, not branch sum. |
+| Critic pass/fail | `docs/session8_assignment_proofs.txt` includes one pass and one fail with recovery planner splice. |
+| Coder skill | `prompts/coder.md` emits Python; coder nodes feed `sandbox_executor`. |
+| New skill | `tabulator` is added in `agent_config.yaml` with `prompts/tabulator.md`; no Executor edit is needed for its plan. |
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.0
+n002 tabulator        label=evidence_table               status=complete elapsed=0.001
+n003 formatter        label=out                          status=complete elapsed=0.0

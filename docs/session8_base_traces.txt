@@ -1,0 +1,146 @@
+
+===== Base hello =====
+SESSION: s8_hello_20260606180420
+QUERY: Say hello.
+READY LAYER: n001:planner[planner]
+[n001] planner: The query only needs a terminal formatter. (elapsed 0.001s)
+LAYER WALL: 0.003s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n002:formatter[out]
+[n002] formatter: Hello! The Session 8 DAG is awake. (elapsed 0.001s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+
+FINAL ANSWER:
+Hello! The Session 8 DAG is awake.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.001
+n002 formatter        label=out                          status=complete elapsed=0.001
+
+===== Base A - Shannon Wikipedia =====
+SESSION: s8_A_20260606180420
+QUERY: Fetch https://en.wikipedia.org/wiki/Claude_Shannon and tell me his birth date, death date, and three key contributions to information theory.
+READY LAYER: n001:planner[planner]
+[n001] planner: Fetch, extract, critic-check, then answer. (elapsed 0.000s)
+LAYER WALL: 0.003s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+READY LAYER: n002:researcher[shannon_page]
+[n002] researcher: Claude Elwood Shannon was born on 30 April 1916 and died on 24 February 2001. He founded information theory, introduced the bit as a measure of information, connected Boolean algeb (elapsed 0.303s)
+LAYER WALL: 0.307s | BRANCH SUM: 0.303s | MAX BRANCH: 0.303s
+READY LAYER: n003:distiller[shannon_fields]
+[n003] distiller: Birth: 30 April 1916; death: 24 February 2001; contributions: entropy, bit, noisy-channel communication. (elapsed 0.002s)
+LAYER WALL: 0.004s | BRANCH SUM: 0.002s | MAX BRANCH: 0.002s
+READY LAYER: n005:critic[critic_shannon_fields_out]
+[n005] critic: The extracted Shannon fields include both dates and at least three contributions. (elapsed 0.001s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n004:formatter[out]
+[n004] formatter: Claude Shannon was born on 30 April 1916 and died on 24 February 2001.  Three key contributions: 1. Founded information theory and formalized information entropy. 2. Popularized th (elapsed 0.001s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+
+FINAL ANSWER:
+Claude Shannon was born on 30 April 1916 and died on 24 February 2001.
+
+Three key contributions:
+1. Founded information theory and formalized information entropy.
+2. Popularized the bit as a unit for measuring information.
+3. Analyzed reliable communication over noisy channels.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.0
+n002 researcher       label=shannon_page                 status=complete elapsed=0.303
+n003 distiller        label=shannon_fields               status=complete elapsed=0.002
+n004 formatter        label=out                          status=complete elapsed=0.001
+n005 critic           label=critic_shannon_fields_out    status=complete elapsed=0.001
+
+===== Base I - three city populations parallel fan-out =====
+SESSION: s8_I_20260606180420
+QUERY: Find the populations of London, Paris, Berlin and tell me which two are closest in size.
+READY LAYER: n001:planner[planner]
+[n001] planner: Three independent city researchers feed one computation node. (elapsed 0.001s)
+LAYER WALL: 0.003s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n002:researcher[london], n003:researcher[paris], n004:researcher[berlin]
+[n004] researcher: Berlin population is 3,755,000. (elapsed 0.703s)
+[n003] researcher: Paris population is 2,115,000. (elapsed 0.901s)
+[n002] researcher: London population is 8,866,000. (elapsed 1.203s)
+LAYER WALL: 1.205s | BRANCH SUM: 2.807s | MAX BRANCH: 1.203s
+READY LAYER: n005:coder[compare]
+[n005] coder: Paris and Berlin are closest in size, with a population difference of 1,640,000. (elapsed 0.002s)
+LAYER WALL: 0.005s | BRANCH SUM: 0.002s | MAX BRANCH: 0.002s
+READY LAYER: n006:formatter[out], n007:sandbox_executor[sandbox_executor_compare]
+[n006] formatter: The two closest are Paris and Berlin, with a difference of 1,640,000 people. (elapsed 0.001s)
+[n007] sandbox_executor: exit=0 stdout={'closest_pair': ('Berlin', 'Paris'), 'difference': 1640000} (elapsed 0.026s)
+LAYER WALL: 0.029s | BRANCH SUM: 0.027s | MAX BRANCH: 0.026s
+
+FINAL ANSWER:
+The two closest are Paris and Berlin, with a difference of 1,640,000 people.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.001
+n002 researcher       label=london                       status=complete elapsed=1.203
+n003 researcher       label=paris                        status=complete elapsed=0.901
+n004 researcher       label=berlin                       status=complete elapsed=0.703
+n005 coder            label=compare                      status=complete elapsed=0.002
+n006 formatter        label=out                          status=complete elapsed=0.001
+n007 sandbox_executor label=sandbox_executor_compare     status=complete elapsed=0.026
+
+===== Base J - graceful failure =====
+SESSION: s8_J_20260606180420
+QUERY: Read /nonexistent/path.txt and tell me what's in it.
+READY LAYER: n001:planner[planner]
+[n001] planner: The path is impossible, so fail gracefully without dispatching work. (elapsed 0.001s)
+LAYER WALL: 0.002s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n002:formatter[out]
+[n002] formatter: I cannot read /nonexistent/path.txt because the path does not exist in the demo workspace. (elapsed 0.000s)
+LAYER WALL: 0.001s | BRANCH SUM: 0.000s | MAX BRANCH: 0.000s
+
+FINAL ANSWER:
+I cannot read /nonexistent/path.txt because the path does not exist in the demo workspace.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.001
+n002 formatter        label=out                          status=complete elapsed=0.0
+
+===== Base K - resume stop point =====
+SESSION: s8_K_20260606180420
+QUERY: For Lagos, Cairo, and Kinshasa, find current populations and growth rates and tell me which is growing fastest.
+READY LAYER: n001:planner[planner]
+[n001] planner: Three independent growth researchers feed one computation node. (elapsed 0.001s)
+LAYER WALL: 0.003s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n002:researcher[lagos], n003:researcher[cairo], n004:researcher[kinshasa]
+[n003] researcher: Cairo population is 10,230,000. Growth rate is 2.05%. (elapsed 0.853s)
+[n004] researcher: Kinshasa population is 17,032,000. Growth rate is 3.45%. (elapsed 0.953s)
+[n002] researcher: Lagos population is 16,536,000. Growth rate is 3.78%. (elapsed 1.103s)
+LAYER WALL: 1.104s | BRANCH SUM: 2.908s | MAX BRANCH: 1.103s
+SIMULATED STOP: completed 4 nodes; resume with `.venv/bin/python flow.py --resume s8_K_20260606180420`
+
+FINAL ANSWER:
+No final formatter completed.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.001
+n002 researcher       label=lagos                        status=complete elapsed=1.103
+n003 researcher       label=cairo                        status=complete elapsed=0.853
+n004 researcher       label=kinshasa                     status=complete elapsed=0.953
+n005 coder            label=fastest_growth               status=pending  elapsed=-
+n006 formatter        label=out                          status=pending  elapsed=-
+
+===== Base K - resumed =====
+SESSION: s8_K_20260606180420
+QUERY: For Lagos, Cairo, and Kinshasa, find current populations and growth rates and tell me which is growing fastest.
+READY LAYER: n005:coder[fastest_growth]
+[n005] coder: Lagos is growing fastest at 3.78%. (elapsed 0.001s)
+LAYER WALL: 0.002s | BRANCH SUM: 0.001s | MAX BRANCH: 0.001s
+READY LAYER: n006:formatter[out], n007:sandbox_executor[sandbox_executor_fastest_growth]
+[n006] formatter: Lagos is growing fastest at 3.78%. (elapsed 0.001s)
+[n007] sandbox_executor: exit=0 stdout={'fastest': 'Lagos', 'growth_rate': 3.78} (elapsed 0.021s)
+LAYER WALL: 0.023s | BRANCH SUM: 0.022s | MAX BRANCH: 0.021s
+
+FINAL ANSWER:
+Lagos is growing fastest at 3.78%.
+
+NODE SUMMARY:
+n001 planner          label=planner                      status=complete elapsed=0.001
+n002 researcher       label=lagos                        status=complete elapsed=1.103
+n003 researcher       label=cairo                        status=complete elapsed=0.853
+n004 researcher       label=kinshasa                     status=complete elapsed=0.953
+n005 coder            label=fastest_growth               status=complete elapsed=0.001
+n006 formatter        label=out                          status=complete elapsed=0.001
+n007 sandbox_executor label=sandbox_executor_fastest_growth status=complete elapsed=0.021

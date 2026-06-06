@@ -1,0 +1,68 @@
+skills:
+  planner:
+    prompt: prompts/planner.md
+    tools: []
+    temperature: 0.4
+    max_tokens: 1200
+
+  researcher:
+    prompt: prompts/researcher.md
+    tools: [web_search, fetch_url]
+    temperature: 0.7
+    max_tokens: 1600
+
+  retriever:
+    prompt: prompts/retriever.md
+    tools: [search_knowledge]
+    temperature: 0.2
+    max_tokens: 1200
+
+  distiller:
+    prompt: prompts/distiller.md
+    tools: []
+    temperature: 0.1
+    max_tokens: 1200
+    critic: true
+
+  summariser:
+    prompt: prompts/summariser.md
+    tools: []
+    temperature: 0.3
+    max_tokens: 1200
+
+  critic:
+    prompt: prompts/critic.md
+    tools: []
+    temperature: 0.0
+    max_tokens: 600
+
+  formatter:
+    prompt: prompts/formatter.md
+    tools: []
+    temperature: 0.3
+    max_tokens: 1200
+
+  coder:
+    prompt: prompts/coder.md
+    tools: []
+    temperature: 0.1
+    max_tokens: 1400
+    internal_successors: [sandbox_executor]
+
+  sandbox_executor:
+    prompt: prompts/sandbox_executor.md
+    tools: []
+    temperature: 0.0
+    max_tokens: 600
+
+  browser:
+    prompt: prompts/browser.md
+    tools: [browser_open, browser_click, browser_read]
+    temperature: 0.5
+    max_tokens: 1200
+
+  tabulator:
+    prompt: prompts/tabulator.md
+    tools: []
+    temperature: 0.2
+    max_tokens: 1200
